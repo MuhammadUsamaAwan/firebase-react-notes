@@ -12,25 +12,25 @@
    import { getFirestore } from 'firebase/firestore'
 
    const firebaseConfig = {
-   apiKey: process.env.REACT_APP_FIREBASE_API_KEY:
-   authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-   projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-   storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-   messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-   appId: process.env.REACT_APP_FIREBASE_APP_ID,
+     apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+     authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+     projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+     storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+     messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+     appId: process.env.REACT_APP_FIREBASE_APP_ID,
    }
 
    initializeApp(firebaseConfig)
    export const db = getFirestore()
    ```
 
-&nbsp;
+<br>
 
 ## Enable Authentication
 
 To enable authentication to go authentication tab and enable providers for the methods you want to use like email/password
 
-&nbsp;
+<br>
 
 ## Firestore Database Rules
 
@@ -61,8 +61,8 @@ service cloud.firestore {
       return request.resource.data;
     }
 
-   // Does the logged-in user match the requested userId?
-    function isUser(userId) {
+   // Does the logged-in user match the requested userId
+    function isOwner(userId) {
       return request.auth.uid == userId;
     }
 
@@ -87,25 +87,32 @@ service cloud.firestore {
 }
 ```
 
-&nbsp;
+<br>
 
 ## Storage Rules
 
 ```javascript
 service firebase.storage {
   match /b/{bucket}/o {
+
+  	// Rules
     match /{allPaths=**} {
       allow read;
       allow write: if
       isSignedIn() &&
-      incomingData().size < 2,097,152
+      incomingData().size < 2 * 1024 * 102 &&
       incomingData().contentType.matches('image/.*')
+    }
+
+    // Functions
+    function incomingData() {
+      return request.resource.data;
     }
   }
 }
 ```
 
-&nbsp;
+<br>
 
 ## Register User
 
@@ -135,7 +142,7 @@ formDataCopy.timestamp = serverTimestamp()
 await setDoc(doc(db, 'users', user.uid), formDataCopy)
 ```
 
-&nbsp;
+<br>
 
 ## Login User
 
@@ -147,7 +154,7 @@ const auth = getAuth()
 const userCredential = await signInWithEmailAndPassword(auth, email, password)
 ```
 
-&nbsp;
+<br>
 
 ## Logout
 
@@ -157,7 +164,7 @@ const auth = getAuth()
 auth.signOut()
 ```
 
-&nbsp;
+<br>
 
 ## Forgot Password
 
@@ -168,7 +175,7 @@ const auth = getAuth()
 await sendPasswordResetEmail(auth, email)
 ```
 
-&nbsp;
+<br>
 
 ## Google OAuth
 
@@ -197,7 +204,19 @@ if (!docSnap.exists()) {
 }
 ```
 
-&nbsp;
+<br>
+
+## Login with Facebook
+
+Go to [Facebook for Developers](https://developers.facebook.com/). Head to my apps and selected consumer and finish. Once the app is created to go settings > basic settings and copy the **app id** and **app secret** to firebase provider. Copy the OAuth redirect URI. Go to dashboard setup facebook login. Under valid OAuth redirect URI paste.
+
+```js
+import { signInWithPopup, FacebookAuthProvider } from 'firebase/auth'
+
+const provider = new FacebookAuthProvider()
+```
+
+<br>
 
 ## Private Routes
 
@@ -251,7 +270,7 @@ const PrivateRoute = () => {
 export default PrivateRoute
 ```
 
-&nbsp;
+<br>
 
 ## Fetch Collections from Database
 
@@ -290,7 +309,7 @@ querySnap.forEach(doc => {
 })
 ```
 
-&nbsp;
+<br>
 
 ## Fetch Document from Collection
 
@@ -305,7 +324,7 @@ const docSnap = await getDoc(docRef)
 // docSnap to your state after checking it exists
 ```
 
-&nbsp;
+<br>
 
 ## Uploading Images
 
@@ -387,7 +406,7 @@ return (
 )
 ```
 
-&nbsp;
+<br>
 
 ## Create Document in a Collection
 
@@ -399,7 +418,7 @@ const docRef = await addDoc(collection(db, 'products'), formData)
 //docRef gives id too if you want to navigate to that
 ```
 
-&nbsp;
+<br>
 
 ## Delete Document in a Collection
 
@@ -410,7 +429,7 @@ import { addDoc, doc } from 'firebase/firestore'
 await deleteDoc(doc(db, 'products', productId))
 ```
 
-&nbsp;
+<br>
 
 ## Update Document in a Collection
 
@@ -423,4 +442,4 @@ await updateDoc(doc(db, 'products'), {
 })
 ```
 
-&nbsp;
+<br>
